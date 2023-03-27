@@ -147,6 +147,7 @@ void Building::enemyRoom(Room *room)
 			if (input == "Fight")
 			{
 				fighting(&enemy);
+				return;
 			}
 			else if (input == "Move")
 			{
@@ -204,6 +205,7 @@ void Building::movingAround(Room* room)
 		{
 			string actions[] = { "Move Left", "Move Right", "Move Back"};
 			actionSequence(3, actions);
+			cout << "\nType 'Left', 'Right', or 'Back' to move to the next room.\n";
 			string input;
 			cin >> input;
 			if (input == "Left")
@@ -229,32 +231,128 @@ void Building::movingAround(Room* room)
 			}
 			else
 			{
-				cout << "You did not make a correct choice. Please try again.";
+				cout << "\nYou did not make a correct choice. Please try again.\n";
 			}
 		}
 		else if (room->position == 2)
 		{
-
+			string actions[] = { "Move Right" };
+			actionSequence(1, actions);
+			cout << "\nPlease type 'Right' to move.\n";
+			string input;
+			cin >> input;
+			if (input == "Right")
+			{
+				player.roomChange(&room[1]);
+				cout << "\n\nYou notice a door on the east side of the room. Carefully you walk toward the door and open \n";
+				cout << "the door entering the next room.\n";
+				return;
+			}
+			else
+			{
+				cout << "\nYou did not make a correct choice. Please try again.\n";
+			}
 		}
 		else if (room->position == 3)
 		{
-
+			string actions[] = { "Move Down", "Back"};
+			actionSequence(2, actions);
+			cout << "\nPlease type 'Down' or 'Back' to move.";
+			string input;
+			cin >> input;
+			if (input == "Down")
+			{
+				player.roomChange(&room[4]);
+				cout << "\n\nYou notice a door on the south side of the room. Carefully you walk toward the door and open \n";
+				cout << "the door entering the next room.\n";
+				return;
+			}
+			else if (input == "Back")
+			{
+				player.roomChange(&room[1]);
+				cout << "\nYou decide you might want to check the previous room one more time.";
+				return;
+			}
+			else
+			{
+				cout << "You did not make a correct choice. Please try again.";
+			}
 		}
 		else if (room->position == 4)
 		{
+			string actions[] = { "Move Right", "Back" };
+			actionSequence(2, actions);
+			cout << "\nPlease type 'Right' or 'Back' to move.";
+			string input;
+			cin >> input;
+			if (input == "Right")
+			{
+				player.roomChange(&room[5]);
+				cout << "\n\nYou notice a door on the east side of the room. Carefully you walk toward the door and open \n";
+				cout << "the door entering the next room.\n";
+				return;
+			}
+			else if (input == "Back")
+			{
+				player.roomChange(&room[3]);
+				cout << "\nYou decide you might want to check the previous room one more time.";
+				return;
+			}
+			else
+			{
+				cout << "You did not make a correct choice. Please try again.";
+			}
 
 		}
 		else if (room->position == 5)
 		{
-
+			string actions[] = { "Move Back" };
+			actionSequence(1, actions);
+			cout << "\nPlease type 'Back' to move.\n";
+			string input;
+			cin >> input;
+			if (input == "Back")
+			{
+				player.roomChange(&room[4]);
+				cout << "\n\nYou notice a door on the west side of the room. Carefully you walk toward the door and open \n";
+				cout << "the door entering the next room.\n";
+				return;
+			}
+			else
+			{
+				cout << "\nYou did not make a correct choice. Please try again.\n";
+			}
 		}
 		else
 		{
-
+			cout << "You have not made a correct decision. Please try again.";
 		}
 	}
 }
 
+int Building::endGameLogic()
+{
+	string actions[] = { "Yes", "No" };
+	
+	while (true)
+	{
+		actionSequence(2, actions);
+		string input;
+		cin >> input;
+		if (input == "Yes")
+		{
+			return 1;
+		}
+		else if (input == "No")
+		{
+			return 0;
+		}
+		else
+		{
+			cout << "You have entered an incorrect value.";
+		}
+	}
+}
 
 int Building::runBuilding()
 {
@@ -264,7 +362,23 @@ int Building::runBuilding()
 	while (true)
 	{
 		enterRoom(player.currentRoom);
-
+		if (player.isDead())
+		{
+			cout << "You have died!\n";
+			return endGameLogic();
+		}
+		else
+		{
+			if (player.currentRoom->exit)
+			{
+				if (player.currentRoom->enemy.size() == 0)
+				{
+					cout << "YOu have conquered the building. Would you like to play again?\n";
+					return endGameLogic();
+				}
+			}
+		}
+		movingAround(player.currentRoom);
 	}
 }
 
@@ -346,6 +460,7 @@ Player::Player(string Name, int Strength, int Dexterity, int Constitution, int A
 	addItem(sword);
 
 	maxHealth = (Strength + Dexterity + Endurance) - Agility;
+	currentHealth = maxHealth;
 	stamina = (Constitution + Agility + Endurance) - Dexterity;
 	cout << "Your name is: " << Name << "\n";
 	cout << "Your Health is: " << currentHealth << "\n";
